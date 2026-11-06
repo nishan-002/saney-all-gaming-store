@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: saney-gaming-store
+    runtime: node
+    plan: starter
+    buildCommand: npm install --include=dev && npm run build
+    preDeployCommand: npm run db:init
+    startCommand: npm start
+    healthCheckPath: /api/health
+    disk:
+      name: saney-store-files
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: UPLOAD_DIR
+        value: /var/data/uploads
+      - key: PROOF_DIR
+        value: /var/data/private-uploads
+      - key: DATABASE_URL
+        fromDatabase:
+          name: saney-gaming-store-db
+          property: connectionString
+
+databases:
+  - name: saney-gaming-store-db
+    databaseName: saney_store
+    user: saney_store_user
+    plan: basic-256mb
